@@ -11,6 +11,8 @@ VisualStudio Code 等でも使用されている [StreamJsonRpc](https://github.
 次に、ISampleService を実装したクラスを作成します。
 最後に、NamedPipeSingleRpcServer<ISampleService> をインスタンス化します。
 
+または、同時接続を許す場合は、SampleListener を試してください。
+
 ## クライアント
 
 NamedPipeRpcClientBase を継承し、ISampleService を実装したクラス (SampleClient) を作成します。

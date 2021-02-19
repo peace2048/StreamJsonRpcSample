@@ -16,9 +16,13 @@ namespace StreamJsonRpcSample
                 {
                     services.AddSingleton(provider =>
                     {
-                        var configuration = context.Configuration;
                         var logger = provider.GetService<ILogger<NamedPipeSingleRpcServer<ISampleService>>>();
                         return new NamedPipeSingleRpcServer<ISampleService>(logger, "SampleRpc", () => new SampleService());
+                    });
+                    services.AddSingleton(provider =>
+                    {
+                        var logger = provider.GetService<ILogger<SampleListener>>();
+                        return new SampleListener(logger, "SampleRpc", 2);
                     });
                     services.AddTransient(provider =>
                     {
@@ -56,16 +60,27 @@ namespace StreamJsonRpcSample
         }
 
 #pragma warning disable VSTHRD200
+        [Command("Listen")]
+        public async Task Listen()
+#pragma warning restore
+        {
+            var listener = Context.ServiceProvider.GetService<SampleListener>();
+            await listener.RunAsync(Context.CancellationToken);
+        }
+
+#pragma warning disable VSTHRD200
         [Command("Client")]
         public async Task Client()
 #pragma warning restore
         {
             var client = Context.ServiceProvider.GetService<SampleClient>();
             await client.ConnectAsync();
-            var a = 1;
-            var b = 2;
-            var r = await client.AddAsync(a, b);
-            Console.WriteLine($"{a} + {b} = {r}");
+            for (var i = 0; i < 3; i++)
+            {
+                var r = await client.AddAsync(i, i);
+                Console.WriteLine($"{i} + {i} = {r}");
+                Console.ReadLine();
+            }
             client.Disconnect();
         }
     }
